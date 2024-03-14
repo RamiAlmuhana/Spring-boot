@@ -1,8 +1,7 @@
 package org.duckstudios.todoapp.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.*;
 
 // Je geeft hier aan dat dit een tabel gaat worden
 // dus deze hele class wordt een tabel in de database
@@ -18,12 +17,15 @@ public class Task {
     private String description;
     private boolean isFinished = false;
 
-    public Task(String name, String description) {
+    @ManyToOne(cascade = CascadeType.MERGE)
+    @JsonManagedReference
+    private Category category;
+
+    public Task(String name, String description, Category category) {
         this.name = name;
         this.description = description;
+        this.category = category;
     }
-
-
 
     public long getId() {
         return id;

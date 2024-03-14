@@ -2,6 +2,7 @@ package org.duckstudios.todoapp.dao;
 
 
 import org.duckstudios.todoapp.dto.TaskDTO;
+import org.duckstudios.todoapp.models.Category;
 import org.duckstudios.todoapp.models.Task;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -17,9 +18,11 @@ import java.util.Optional;
 public class TaskDAO {
 
     private TaskRepository taskRepository;
+    private CategoryRepository categoryRepository;
 
-    public TaskDAO(TaskRepository taskRepository) {
+    public TaskDAO(TaskRepository taskRepository, CategoryRepository categoryRepository) {
         this.taskRepository = taskRepository;
+        this.categoryRepository = categoryRepository;
     }
 
     public List<Task> getAllTasks(){
@@ -28,8 +31,16 @@ public class TaskDAO {
     }
 
     public void createTask(TaskDTO taskDTO){
-        Task task = new Task(taskDTO.name, taskDTO.description);
-        this.taskRepository.save(task);
+        Optional<Category> categoryOptional = this.categoryRepository.findById(taskDTO.categoryId);
+        if (categoryOptional.isPresent()) {
+            Category category = categoryOptional.get();
+            Task task = new Task(taskDTO.name, taskDTO.description, category);
+            this.taskRepository.save(task);
+
+        }else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Category with that id does not exist");
+        }
+
     }
 
 
